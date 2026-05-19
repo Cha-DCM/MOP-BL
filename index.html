@@ -161,10 +161,26 @@
       font-size: 10px;
       font-weight: 500;
       color: var(--text-tertiary);
-      padding: 10px 10px 4px;
+      padding: 8px 10px;
       text-transform: uppercase;
       letter-spacing: 0.07em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      border-radius: var(--radius-md);
+      transition: background 0.1s;
     }
+    .cat-label:hover { background: var(--bg-primary); }
+    .cat-chevron {
+      transition: transform 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .cat-label.collapsed .cat-chevron { transform: rotate(-90deg); }
+    .cat-section { overflow: hidden; }
 
     .doc-item {
       display: flex;
@@ -576,6 +592,19 @@
       return q.trim().toLowerCase().split(/\s+/).every(w => haystack.includes(w));
     }
 
+    // État plié/déplié par catégorie (true = déplié)
+    const catExpanded = {};
+    CATEGORIES.forEach(c => catExpanded[c] = true);
+
+    const BOOK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 7h6"/><path d="M8 11h8"/></svg>`;
+
+    const CHEVRON_SVG = `<svg class="cat-chevron" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+
+    function toggleCat(cat) {
+      catExpanded[cat] = !catExpanded[cat];
+      renderList();
+    }
+
     function renderList() {
       const q = document.getElementById('searchInput').value;
       const list = document.getElementById('docList');
@@ -587,10 +616,21 @@
         if (!inCat.length) return;
         total += inCat.length;
 
+        const expanded = catExpanded[cat];
+
+        // En-tête catégorie cliquable
         const sep = document.createElement('div');
-        sep.className = 'cat-label';
-        sep.textContent = cat;
+        sep.className = 'cat-label' + (expanded ? '' : ' collapsed');
+        sep.innerHTML = `<span>${cat} <span style="opacity:0.55;font-weight:400;">(${inCat.length})</span></span>${CHEVRON_SVG}`;
+        sep.onclick = () => toggleCat(cat);
         list.appendChild(sep);
+
+        // Conteneur des documents
+        const section = document.createElement('div');
+        section.className = 'cat-section';
+        // max-height pour l'animation : on estime ~80px par doc
+        section.style.maxHeight = expanded ? (inCat.length * 100 + 'px') : '0px';
+        if (!expanded) section.style.overflow = 'hidden';
 
         inCat.forEach(doc => {
           const el = document.createElement('div');
@@ -601,7 +641,7 @@
             : '';
 
           el.innerHTML = `
-            <div class="doc-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 7h6"/><path d="M8 11h8"/></svg></div>
+            <div class="doc-icon">${BOOK_SVG}</div>
             <div class="doc-info">
               <div class="doc-name">${doc.name}</div>
               <div class="doc-meta">Ajouté le ${doc.date}</div>
@@ -614,8 +654,10 @@
             </div>`;
 
           el.onclick = () => openDoc(doc);
-          list.appendChild(el);
+          section.appendChild(el);
         });
+
+        list.appendChild(section);
       });
 
       if (total === 0) {
