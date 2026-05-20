@@ -750,7 +750,7 @@
       renderList();
     }
 
-    async async function removeDoc(id, e) {
+    async function removeDoc(id, e) {
       e.stopPropagation();
       if (!checkAdmin()) return;
       if (!confirm('Supprimer ce document de la liste ?')) return;
