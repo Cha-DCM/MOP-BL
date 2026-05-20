@@ -638,11 +638,25 @@
     }
 
     // ── Google Apps Script API ───────────────────────────────────────────
+    function normalizeDate(d) {
+      if (!d) return '';
+      // Si déjà au format "jj mm aaaa", on garde
+      if (/^\d{2}\s\d{2}\s\d{4}$/.test(d)) return d;
+      // Sinon on parse la date ISO ou autre
+      const date = new Date(d);
+      if (isNaN(date.getTime())) return String(d);
+      const dd = String(date.getDate()).padStart(2, '0');
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      return `${dd} ${mm} ${date.getFullYear()}`;
+    }
+
     async function loadDocs() {
       try {
         const res = await fetch(SCRIPT_URL);
         const data = await res.json();
-        return Array.isArray(data) ? data : [];
+        if (!Array.isArray(data)) return [];
+        // Normaliser toutes les dates
+        return data.map(d => ({ ...d, date: normalizeDate(d.date) }));
       } catch(e) { console.error('Erreur chargement:', e); return []; }
     }
 
