@@ -297,6 +297,7 @@
     .badge-TPE { background: #fce8e6; color: #993C1D; }
     .badge-HACCP { background: #fef7e0; color: #8a5c00; }
     .badge-FAQ { background: #f3e8fd; color: #6b2fa0; }
+    .badge-Process { background: #fff0e0; color: #b45309; }
     .badge-Autres { background: var(--bg-tertiary); color: var(--text-secondary); }
 
     .viewer-frame { flex: 1; overflow: hidden; background: #ebebeb; }
@@ -543,6 +544,7 @@
           <option value="TPE">TPE</option>
           <option value="HACCP">HACCP</option>
           <option value="FAQ">FAQ</option>
+          <option value="Process">Process</option>
           <option value="Autres">Autres</option>
         </select>
       </div>
@@ -600,6 +602,7 @@
           <option value="TPE">TPE</option>
           <option value="HACCP">HACCP</option>
           <option value="FAQ">FAQ</option>
+          <option value="Process">Process</option>
           <option value="Autres">Autres</option>
         </select>
       </div>
@@ -617,7 +620,7 @@
   </div>
 
   <script>
-    const CATEGORIES = ['Partenariat', 'BETA', 'TPE', 'HACCP', 'FAQ', 'Autres'];
+    const CATEGORIES = ['Partenariat', 'BETA', 'TPE', 'HACCP', 'FAQ', 'Process', 'Autres'];
 
     // ── CONFIG ──────────────────────────────────────────────────────────
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7tiCG5TTPp3BbNGQZwDZF9rbbut_Z06VIa3CRCN5n7TdJ3_nGatZilxQxDTy8pSFNMA/exec';
@@ -726,6 +729,7 @@
       if (cat === 'TPE') return 'badge badge-TPE';
       if (cat === 'HACCP') return 'badge badge-HACCP';
       if (cat === 'FAQ') return 'badge badge-FAQ';
+      if (cat === 'Process') return 'badge badge-Process';
       if (cat === 'Autres') return 'badge badge-Autres';
       return 'badge';
     }
