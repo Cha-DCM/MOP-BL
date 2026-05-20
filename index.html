@@ -540,18 +540,14 @@
   <script>
     const CATEGORIES = ['Partenariat', 'BETA', 'TPE'];
 
-    // ── CONFIG GITHUB (à remplir une fois) ──────────────────────────────
-    const GH_USER  = 'cha-dcm';      // ex: charline-dupont
-    const GH_REPO  = 'MOP-BL';          // ex: modes-operatoires
-    const GH_FILE  = 'docs.json';           // fichier de données dans le dépôt
-    const GH_TOKEN = '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';     // token GitHub (voir instructions)
-    const ADMIN_PASS = '3110'; // mot de passe pour modifier la liste
+    // ── CONFIG ──────────────────────────────────────────────────────────
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7tiCG5TTPp3BbNGQZwDZF9rbbut_Z06VIa3CRCN5n7TdJ3_nGatZilxQxDTy8pSFNMA/exec';
+    const ADMIN_PASS = 'BL2017'; // ← remplacez par votre mot de passe
     // ────────────────────────────────────────────────────────────────────
 
     let docs = [];
     let activeId = null;
-    let ghFileSha = null;       // SHA du fichier GitHub (requis pour la mise à jour)
-    let isAdmin = false;        // session admin en cours
+    let isAdmin = false;
 
     function formatDate(d) {
       const dd = String(d.getDate()).padStart(2, '0');
@@ -559,40 +555,33 @@
       return `${dd} ${mm} ${d.getFullYear()}`;
     }
 
-    // ── GitHub API ───────────────────────────────────────────────────────
-    const GH_API = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}`;
-
+    // ── Google Apps Script API ───────────────────────────────────────────
     async function loadDocs() {
       try {
-        const res = await fetch(GH_API, {
-          headers: { 'Authorization': `token ${GH_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
-        });
-        if (res.status === 404) { ghFileSha = null; return []; }
+        const res = await fetch(SCRIPT_URL);
         const data = await res.json();
-        ghFileSha = data.sha;
-        return JSON.parse(atob(data.content.replace(/\n/g, '')));
+        return Array.isArray(data) ? data : [];
       } catch(e) { console.error('Erreur chargement:', e); return []; }
     }
 
-    async function saveDocs() {
-      const body = {
-        message: 'Mise à jour docs.json',
-        content: btoa(unescape(encodeURIComponent(JSON.stringify(docs, null, 2)))),
-        ...(ghFileSha ? { sha: ghFileSha } : {})
-      };
+    async function saveAdd(doc) {
       try {
-        const res = await fetch(GH_API, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `token ${GH_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(body)
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'add', doc }),
+          headers: { 'Content-Type': 'text/plain' }
         });
-        const data = await res.json();
-        ghFileSha = data.content?.sha || ghFileSha;
-      } catch(e) { console.error('Erreur sauvegarde:', e); alert('Erreur lors de la sauvegarde.'); }
+      } catch(e) { console.error('Erreur ajout:', e); alert('Erreur lors de la sauvegarde.'); }
+    }
+
+    async function saveDelete(id) {
+      try {
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'delete', id }),
+          headers: { 'Content-Type': 'text/plain' }
+        });
+      } catch(e) { console.error('Erreur suppression:', e); alert('Erreur lors de la suppression.'); }
     }
 
     // ── Auth admin ───────────────────────────────────────────────────────
@@ -720,10 +709,11 @@
       renderList();
     }
 
-    async function removeDoc(id, e) {
+    async async function removeDoc(id, e) {
       e.stopPropagation();
       if (!checkAdmin()) return;
       if (!confirm('Supprimer ce document de la liste ?')) return;
+      const deletedId = id;
       docs = docs.filter(d => d.id !== id);
       if (activeId === id) {
         activeId = null;
@@ -732,7 +722,7 @@
         document.getElementById('emptyState').style.display = 'flex';
       }
       renderList();
-      await saveDocs();
+      await saveDelete(deletedId);
     }
 
     function openModal() {
@@ -755,10 +745,11 @@
       const kw = document.getElementById('inputKeywords').value;
       if (!name || !url) { alert('Merci de renseigner le nom et le lien du document.'); return; }
       const keywords = kw ? kw.split(',').map(k => k.trim()).filter(Boolean) : [];
-      docs.push({ id: Date.now(), name, category: cat, url, date: formatDate(new Date()), keywords });
+      const newDoc = { id: Date.now(), name, category: cat, url, date: formatDate(new Date()), keywords };
+      docs.push(newDoc);
       closeModal();
       renderList();
-      await saveDocs();
+      await saveAdd(newDoc);
     }
 
     document.getElementById('modalBg').addEventListener('click', function(e) {
