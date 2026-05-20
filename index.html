@@ -576,6 +576,46 @@
     </div>
   </div>
 
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>Chargement des documents…</p>
+  </div>
+
+  <!-- Modal modification document -->
+  <div class="modal-bg" id="editModalBg">
+    <div class="modal">
+      <h3>Modifier le document</h3>
+      <input type="hidden" id="editId" />
+      <label>Nom du document</label>
+      <input type="text" id="editName" placeholder="Nom du document" />
+      <label>Lien Google Drive</label>
+      <input type="text" id="editUrl" placeholder="https://drive.google.com/file/d/…/view" />
+      <label>Catégorie</label>
+      <div class="select-wrapper">
+        <select id="editCat">
+          <option value="Partenariat">Partenariat</option>
+          <option value="BETA">BETA</option>
+          <option value="TPE">TPE</option>
+          <option value="HACCP">HACCP</option>
+          <option value="FAQ">FAQ</option>
+          <option value="Autres">Autres</option>
+        </select>
+      </div>
+      <div class="label-row">
+        <label>Mots-clés</label>
+        <span class="optional-tag">optionnel</span>
+      </div>
+      <textarea id="editKeywords" rows="2" placeholder="Ex : entrée gratuite, pass CE…"></textarea>
+      <p class="help-text">Séparés par des virgules.</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeEditModal()">Annuler</button>
+        <button class="btn-primary" onclick="submitEdit()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const CATEGORIES = ['Partenariat', 'BETA', 'TPE', 'HACCP', 'FAQ', 'Autres'];
 
@@ -877,10 +917,6 @@
       await saveEdit(updatedDoc);
     }
 
-    document.getElementById('editModalBg').addEventListener('click', function(e) {
-      if (e.target === this) closeEditModal();
-    });
-
     // ── Init ─────────────────────────────────────────────────────────────
     (async () => {
       document.getElementById('addBtn').style.display = 'none';
@@ -889,47 +925,13 @@
       const overlay = document.getElementById('loadingOverlay');
       overlay.classList.add('hidden');
       setTimeout(() => overlay.style.display = 'none', 400);
+
+      // Listeners modals (après que le DOM est complet)
+      document.getElementById('editModalBg').addEventListener('click', function(e) {
+        if (e.target === this) closeEditModal();
+      });
     })();
   </script>
-
-  <!-- Loading overlay -->
-  <div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner"></div>
-    <p>Chargement des documents…</p>
-  </div>
-
-  <!-- Modal modification document -->
-  <div class="modal-bg" id="editModalBg">
-    <div class="modal">
-      <h3>Modifier le document</h3>
-      <input type="hidden" id="editId" />
-      <label>Nom du document</label>
-      <input type="text" id="editName" placeholder="Nom du document" />
-      <label>Lien Google Drive</label>
-      <input type="text" id="editUrl" placeholder="https://drive.google.com/file/d/…/view" />
-      <label>Catégorie</label>
-      <div class="select-wrapper">
-        <select id="editCat">
-          <option value="Partenariat">Partenariat</option>
-          <option value="BETA">BETA</option>
-          <option value="TPE">TPE</option>
-          <option value="HACCP">HACCP</option>
-          <option value="FAQ">FAQ</option>
-          <option value="Autres">Autres</option>
-        </select>
-      </div>
-      <div class="label-row">
-        <label>Mots-clés</label>
-        <span class="optional-tag">optionnel</span>
-      </div>
-      <textarea id="editKeywords" rows="2" placeholder="Ex : entrée gratuite, pass CE…"></textarea>
-      <p class="help-text">Séparés par des virgules.</p>
-      <div class="modal-actions">
-        <button class="btn-secondary" onclick="closeEditModal()">Annuler</button>
-        <button class="btn-primary" onclick="submitEdit()">Enregistrer</button>
-      </div>
-    </div>
-  </div>
 
 </body>
 </html>
