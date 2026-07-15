@@ -230,8 +230,14 @@
       padding: 4px 6px 8px;
       display: none;
       flex-direction: column; gap: 3px;
+      max-height: 320px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     .cat-card.expanded .cat-body { display: flex; }
+    .cat-body::-webkit-scrollbar { width: 4px; }
+    .cat-body::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+    .cat-body::-webkit-scrollbar-thumb:hover { background: var(--border-mid); }
 
     .doc-item {
       padding: 10px 10px;
