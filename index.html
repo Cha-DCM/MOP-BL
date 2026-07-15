@@ -98,7 +98,7 @@
     }
 
     /* ── Layout ── */
-    .layout { flex: 1; display: flex; overflow: hidden; }
+    .layout { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 
     /* ── Sidebar ── */
     .sidebar {
@@ -107,6 +107,7 @@
       border-right: 0.5px solid var(--border-light);
       display: flex; flex-direction: column; gap: 14px;
       overflow: hidden;
+      min-height: 0;
     }
 
     .search-box { position: relative; }
@@ -165,10 +166,13 @@
 
     /* Sidebar content area */
     .cat-list {
-      flex: 1; overflow-y: auto;
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       display: flex; flex-direction: column; gap: 5px;
       padding-right: 4px;
       margin-right: -4px;
+      min-height: 0;
     }
     .cat-list::-webkit-scrollbar { width: 4px; }
     .cat-list::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
